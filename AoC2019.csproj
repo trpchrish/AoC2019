@@ -12,6 +12,8 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -49,6 +51,8 @@
     <Compile Include="Solutions\Day2.cs" />
     <Compile Include="Solutions\Day3.cs" />
     <Compile Include="Solutions\Day4.cs" />
+    <Compile Include="Solutions\Day5.cs" />
+    <Compile Include="Solutions\Day6.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -58,6 +62,8 @@
     <Content Include="InputData\Day1.txt" />
     <Content Include="InputData\Day2.txt" />
     <Content Include="InputData\Day3.txt" />
+    <Content Include="InputData\Day5.txt" />
+    <Content Include="InputData\Day6.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

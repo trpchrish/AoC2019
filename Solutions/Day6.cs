@@ -28,8 +28,69 @@ namespace AoC2019.Solutions
             }
 
             return depth;
-        }           
+        }
 
+        public static int Day6_2()
+        {
+            var nodeList = GetNodes();
+            var orbitTree = BuildTree(nodeList, "COM");
+            var santaNode = GetNode(orbitTree, "SAN");
+            var youNode = GetNode(orbitTree, "YOU");
+            var santaPlanets = GetParentValues(santaNode);
+            var youPlanets = GetParentValues(youNode);
+            var commonAncester = santaPlanets.Intersect(youPlanets).FirstOrDefault();
+
+            var jumps = 0;
+
+            foreach (var planet in santaPlanets)
+            {
+                jumps++;
+                if (planet.ToLower().Equals(commonAncester.ToLower()))
+                    break;
+            }
+
+            foreach (var planet in youPlanets)
+            {
+                jumps++;
+                if (planet.ToLower().Equals(commonAncester.ToLower()))
+                    break;
+            }
+
+            jumps -= 4;
+
+            return jumps;
+        }
+
+        private static List<string> GetParentValues(TreeNode<string> node) 
+        {
+            var planets = new List<string>();
+            planets.Add(node.Value);
+
+            if (node.Parent == null)
+                return planets;
+
+            planets.AddRange(GetParentValues(node.Parent));
+
+            return planets;                       
+        }
+        
+        private static TreeNode<string> GetNode(TreeNode<string>node, string leafNodeValue)
+        {
+            var leafNode = node;
+
+            if (!leafNode.Value.ToLower().Equals(leafNodeValue.ToLower())) 
+            {
+                foreach (var child in node.Children)
+                {
+                    leafNode = GetNode(child, leafNodeValue);
+                    if (leafNode.Value.ToLower().Equals(leafNodeValue.ToLower()))
+                        break;
+                }
+            }
+
+            return leafNode;
+        }
+        
         private static TreeNode<string> BuildTree(List<TreeNode<string>> nodes, string rootValue)
         {
             var rootNodeValue = nodes.Where(n => n.Parent.Value.ToLower().Equals(rootValue.ToLower())).Single().Parent.Value;

@@ -34,7 +34,8 @@ namespace AoC2019.Solutions
             var opCode = codes[0];
             var opCodeString = opCode.ToString("D5");
             var opcodeIndex = 0;
-            
+            var output = 0;
+
             while (opCodeString != "99")
             {
                 opCodeString = codes[opcodeIndex].ToString("D5");
@@ -51,6 +52,7 @@ namespace AoC2019.Solutions
                 int value1;
                 int value2;
                 int value3;
+                               
 
                 switch (opCodeString)
                 {
@@ -60,7 +62,6 @@ namespace AoC2019.Solutions
                         value3 = codes[opcodeIndex + 3];
 
                         codes[value3] = value1 + value2;
-                        codes[0] = codes[value3];
                         opcodeIndex += 4;
                         
                         break;
@@ -71,7 +72,6 @@ namespace AoC2019.Solutions
                         value3 = codes[opcodeIndex + 3];
 
                         codes[value3] = value1 * value2;
-                        codes[0] = codes[value3];
                         opcodeIndex += 4;
 
                         break;
@@ -85,9 +85,9 @@ namespace AoC2019.Solutions
 
                     case "04": //value
                         value1 = codes[opcodeIndex + 1];                        
-                        codes[0] = param1.Equals("0") ? codes[value1] : value1;
+                        output = param1.Equals("0") ? codes[value1] : value1;
 
-                        Console.WriteLine($"output: {codes[0].ToString()}");
+                        Console.WriteLine($"output: {output.ToString()}");
 
                         opcodeIndex += 2;
 
@@ -150,7 +150,7 @@ namespace AoC2019.Solutions
                         break;
 
                     case "99":
-                        Console.WriteLine($"End of instruction. Final output: {codes[0]}");
+                        Console.WriteLine($"End of instruction. Final output: {output}");
                         break;
 
                     default:
@@ -161,7 +161,7 @@ namespace AoC2019.Solutions
 
             }
 
-            return codes[0];
+            return output;
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AoC2019.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,20 +14,19 @@ namespace AoC2019.Solutions
         {
             var sequence = "01234";
             var sequenceLength = sequence.Length;
-            var permutations = Permute(sequence, 0, sequenceLength - 1);
-            var ampliferQueue = new Queue<Amplifier>();                                  
+            var permutations = Permute(sequence, 0, sequenceLength - 1);             
                         
             long thrusterOutput = 0;
 
 
             foreach (var permutation in permutations)
-            {      
-                ampliferQueue.Enqueue(new Amplifier(GetCodes()));
-                ampliferQueue.Enqueue(new Amplifier(GetCodes()));
-                ampliferQueue.Enqueue(new Amplifier(GetCodes()));
-                ampliferQueue.Enqueue(new Amplifier(GetCodes()));
-                ampliferQueue.Enqueue(new Amplifier(GetCodes()));              
-                
+            {  
+                var amplifierA = new IntCode(GetCodes());
+                var amplifierB = new IntCode(GetCodes());
+                var amplifierC = new IntCode(GetCodes());
+                var amplifierD = new IntCode(GetCodes());
+                var amplifierE = new IntCode(GetCodes());
+
                 long outputA = 0;
                 long outputB = 0;
                 long outputC = 0;
@@ -34,39 +34,39 @@ namespace AoC2019.Solutions
                 long outputE = 0;
 
                 for (var i = 0; i < permutation.Length; i++)
-                {
-                    if (ampliferQueue.Count == 0)
-                        break;
-                    
-                    var amp = ampliferQueue.Dequeue();
+                {                                        
                     var phaseSetting = Convert.ToInt64(permutation.Substring(i, 1));
-                    amp.InputSignals.Enqueue(phaseSetting);
 
                     switch (i)
                     {
-                        case 0:                        
-                            amp.InputSignals.Enqueue(0L);
-                            outputA = amp.GetOutput();
+                        case 0:
+                            amplifierA.InputSignals.Enqueue(phaseSetting);
+                            amplifierA.InputSignals.Enqueue(0L);
+                            outputA = amplifierA.Output();
                             break;
 
                         case 1:
-                            amp.InputSignals.Enqueue(outputA);
-                            outputB = amp.GetOutput();
+                            amplifierB.InputSignals.Enqueue(phaseSetting);
+                            amplifierB.InputSignals.Enqueue(outputA);
+                            outputB = amplifierB.Output();
                             break;
 
                         case 2:
-                            amp.InputSignals.Enqueue(outputB);
-                            outputC = amp.GetOutput();
+                            amplifierC.InputSignals.Enqueue(phaseSetting);
+                            amplifierC.InputSignals.Enqueue(outputB);
+                            outputC = amplifierC.Output();
                             break;
 
                         case 3:
-                            amp.InputSignals.Enqueue(outputC);
-                            outputD = amp.GetOutput();
+                            amplifierD.InputSignals.Enqueue(phaseSetting);
+                            amplifierD.InputSignals.Enqueue(outputC);
+                            outputD = amplifierD.Output();
                             break;
 
                         case 4:
-                            amp.InputSignals.Enqueue(outputD);
-                            outputE = amp.GetOutput();
+                            amplifierE.InputSignals.Enqueue(phaseSetting);
+                            amplifierE.InputSignals.Enqueue(outputD);
+                            outputE = amplifierE.Output();
 
                             if (outputE > thrusterOutput)
                                 thrusterOutput = outputE;
@@ -126,155 +126,5 @@ namespace AoC2019.Solutions
         }
         
     }
-
-    public class Amplifier
-    {
-        public long[] Codes { get; private set; }
-        public Queue<long> InputSignals { get; set; }
-
-        public Amplifier(long[] codes)
-        {
-            Codes = codes;
-            InputSignals = new Queue<long>();
-        }
-
-        public long GetOutput()
-        {
-            return IntCode(Codes);
-        }
-
-        private long IntCode(long[] codes)
-        {
-            var opCode = codes[0];
-            var opCodeString = opCode.ToString("D5");
-            var opcodeIndex = 0L;
-            var output = 0L;
-
-            while (opCodeString != "99")
-            {
-                opCodeString = codes[opcodeIndex].ToString("D5");
-
-                //0 = position mode - address
-                //1 = immediate mode =- value
-                var param3 = opCodeString.Substring(opCodeString.Length - 5, 1);
-                var param2 = opCodeString.Substring(opCodeString.Length - 4, 1);
-                var param1 = opCodeString.Substring(opCodeString.Length - 3, 1);
-
-
-                opCodeString = opCodeString.Substring(opCodeString.Length - 2);
-
-                long value1;
-                long value2;
-                long value3;
-
-
-                switch (opCodeString)
-                {
-                    case "01":
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = param2.Equals("0") ? codes[codes[opcodeIndex + 2]] : codes[opcodeIndex + 2];
-                        value3 = codes[opcodeIndex + 3];
-
-                        codes[value3] = value1 + value2;
-                        opcodeIndex += 4;
-
-                        break;
-
-                    case "02":
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = param2.Equals("0") ? codes[codes[opcodeIndex + 2]] : codes[opcodeIndex + 2];
-                        value3 = codes[opcodeIndex + 3];
-
-                        codes[value3] = value1 * value2;
-                        opcodeIndex += 4;
-
-                        break;
-
-                    case "03": //address
-                        if (InputSignals.Any())
-                        {
-                            value1 = codes[opcodeIndex + 1];
-                            codes[value1] = InputSignals.Dequeue();
-                            opcodeIndex += 2;
-                        }                        
-
-                        break;
-
-                    case "04": //value
-                        value1 = codes[opcodeIndex + 1];
-                        output = param1.Equals("0") ? codes[value1] : value1;
-                        opcodeIndex += 2;
-
-                        break;
-
-                    case "05": //jump-if-true: if the first parameter is non-zero, it sets the instruction pointer to the value from the second parameter. Otherwise, it does nothing.
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = codes[opcodeIndex + 2];
-                        if (value1 != 0)
-                        {
-                            opcodeIndex = param2.Equals("0") ? codes[value2] : value2;
-                        }
-                        else
-                        {
-                            opcodeIndex += 3;
-                        }
-                        break;
-
-                    case "06": //jump-if-false: if the first parameter is zero, it sets the instruction pointer to the value from the second parameter. Otherwise, it does nothing.
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = codes[opcodeIndex + 2];
-                        if (value1 == 0)
-                        {
-                            opcodeIndex = param2.Equals("0") ? codes[value2] : value2;
-                        }
-                        else
-                        {
-                            opcodeIndex += 3;
-                        }
-                        break;
-
-                    case "07": //less than: if the first parameter is less than the second parameter, it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = param2.Equals("0") ? codes[codes[opcodeIndex + 2]] : codes[opcodeIndex + 2];
-                        value3 = codes[opcodeIndex + 3];
-                        if (value1 < value2)
-                        {
-                            codes[value3] = 1;
-                        }
-                        else
-                        {
-                            codes[value3] = 0;
-                        }
-                        opcodeIndex += 4;
-                        break;
-
-                    case "08": //equals: if the first parameter is equal to the second parameter, it stores 1 in the position given by the third parameter. Otherwise, it stores 0.
-                        value1 = param1.Equals("0") ? codes[codes[opcodeIndex + 1]] : codes[opcodeIndex + 1];
-                        value2 = param2.Equals("0") ? codes[codes[opcodeIndex + 2]] : codes[opcodeIndex + 2];
-                        value3 = codes[opcodeIndex + 3];
-                        if (value1 == value2)
-                        {
-                            codes[value3] = 1;
-                        }
-                        else
-                        {
-                            codes[value3] = 0;
-                        }
-                        opcodeIndex += 4;
-                        break;
-
-                    case "99":
-                        break;
-
-                    default:
-                        Console.WriteLine($"Unrecognised code {opCodeString} at {codes[opcodeIndex]}");
-                        throw new Exception("unrecognised code");
-
-                }
-
-            }
-
-            return output;
-        }
-    }
+    
 }

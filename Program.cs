@@ -31,7 +31,10 @@ namespace AoC2019
             //var day6_1 = Day6.Day6_1();
             //var day6_2 = Day6.Day6_2();
 
-            var day7_1 = Day7.Day7_1();
+            //var day7_1 = Day7.Day7_1();
+
+            var day8_1 = Day8.Day8_1();
+            Day8.Day8_2();
         }        
 
     }

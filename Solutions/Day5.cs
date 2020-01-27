@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AoC2019.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,24 +10,28 @@ namespace AoC2019.Solutions
 {
     public class Day5
     {
-        public static int Day5_1()
+        public static long Day5_1()
         {
-            int[] inputData = File.ReadAllText(@"C:\AoC\AoC2019\InputData\day5.txt").Split(',')
-                                    .ToList().Select(c => Convert.ToInt32(c)).ToArray();
-
+            long[] inputData = GetInputs();
             var inputValue = 1;
+            var intCode2 = new IntCode2(inputData);
 
-            return IntCode(inputData, inputValue);
+            intCode2.InputSignals.Enqueue(inputValue);
+            intCode2.Run();
+
+            return intCode2.Outputs.Last();
         }
 
-        public static int Day5_2()
+        public static long Day5_2()
         {
-            int[] inputData = File.ReadAllText(@"C:\AoC\AoC2019\InputData\day5.txt").Split(',')
-                                    .ToList().Select(c => Convert.ToInt32(c)).ToArray();
+            long[] inputData = GetInputs();
+            var inputValue = 5; 
+            var intCode2 = new IntCode2(inputData);
 
-            var inputValue = 5;
+            intCode2.InputSignals.Enqueue(inputValue);
+            intCode2.Run();
 
-            return IntCode(inputData, inputValue);
+            return intCode2.Outputs.Last();
         }
 
         private static int IntCode(int[] codes, int inputValue)
@@ -162,6 +167,12 @@ namespace AoC2019.Solutions
             }
 
             return output;
+        }
+
+        private static long[] GetInputs()
+        {
+            return File.ReadAllText(@"C:\AoC\AoC2019\InputData\day5.txt").Split(',')
+                                    .ToList().Select(c => Convert.ToInt64(c)).ToArray();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AoC2019.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,37 +10,44 @@ namespace AoC2019.Solutions
 {
     public class Day2
     {
-        public static int Day2_1()
+        public static long Day2_1()
         {
-            int[] inputData = File.ReadAllText(@"C:\AoC\AoC2019\InputData\day2.txt").Split(',')
-                                     .ToList().Select(c => Convert.ToInt32(c)).ToArray();
+            long[] inputData = GetInputs();
 
             //replace position 1 value with 12 and position 2 with 2
             inputData[1] = 12;
             inputData[2] = 2;
 
-            return IntCode(inputData);
+            var intCode2 = new IntCode2(inputData);
+
+            intCode2.Run();
+
+            return inputData[0];
         }
 
         public static int Day2_2()
         {
-            string[] data = File.ReadAllText(@"C:\AoC\AoC2019\InputData\day2.txt").Split(',');
             var noun = 0;
             var verb = 0;
             var hasRequiredOutput = false;
 
-            for (noun = 0; noun < 100; noun++)
+            for (var i = 0; i < 100; i++)
             {
-                for (verb = 0; verb < 100; verb++)
+                for (var j = 0; j < 100; j++)
                 {
-                    int[] inputData = data.ToList().Select(c => Convert.ToInt32(c)).ToArray();
+                    long[] inputData = GetInputs();
 
-                    inputData[1] = noun;
-                    inputData[2] = verb;
+                    inputData[1] = i;
+                    inputData[2] = j;
 
-                    if (IntCode(inputData) == 19690720)
+                    var intCode2 = new IntCode2(inputData);
+                    intCode2.Run();
+
+                    if (inputData[0] == 19690720)
                     {
                         hasRequiredOutput = true;
+                        noun = i;
+                        verb = j;
                         break;
                     }                        
                 }
@@ -51,37 +59,10 @@ namespace AoC2019.Solutions
             return 100 * noun + verb;
         }
 
-        private static int IntCode(int[] codes)
+        private static long[] GetInputs()
         {
-            var opCode = codes[0];
-            var opcodeIndex = 0;
-
-            while (opCode != 99)
-            {
-                opCode = codes[opcodeIndex];
-
-                var index1 = codes[opcodeIndex + 1];
-                var index2 = codes[opcodeIndex + 2];
-                var index3 = codes[opcodeIndex + 3];
-
-                switch (opCode)
-                {
-                    case 1:
-                        codes[index3] = codes[index1] + codes[index2];
-                        break;
-
-                    case 2:
-                        codes[index3] = codes[index1] * codes[index2];
-                        break;
-
-                    default:
-                        break;
-                }
-                opcodeIndex += 4;
-                codes[0] = codes[index3];
-            }
-
-            return codes[0];
+            return File.ReadAllText(@"C:\AoC\AoC2019\InputData\day2.txt").Split(',')
+                                     .ToList().Select(c => Convert.ToInt64(c)).ToArray();
         }
     }
 }
